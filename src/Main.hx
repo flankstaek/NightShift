@@ -1,7 +1,12 @@
-
+import luxe.Visual;
 import luxe.Input;
+import luxe.Color;
 
 class Main extends luxe.Game {
+
+  var col : Visual;
+  var tk : Float;
+  var dis : Float;
 
     override function config(config:luxe.AppConfig) {
 
@@ -10,20 +15,40 @@ class Main extends luxe.Game {
     } //config
 
     override function ready() {
-
+      tk = 0;
+      dis = 0;
+      col = new Visual({
+        geometry : Luxe.draw.box({
+          x : 0,
+          y : 0,
+          w : Luxe.screen.w, //subject to change
+          h : Luxe.screen.h //subject to change
+        }),
+        color : new Color(1, 0, 0, 1)
+      });
     } //ready
 
-    override function onkeyup( e:KeyEvent ) {
+    override function update(dt:Float) {
+      if(haxe.Timer.stamp() - tk > 2) { //been more than 10 seconds since last thing
+        var old = col.color.toColorHSL();
+        col.color = new ColorHSL(old.h, old.s - .001, old.l, old.a);
+      }
 
-        if(e.keycode == Key.escape) {
-            Luxe.shutdown();
+      trace(col.color);
+      } //update
+
+    override function onmousemove(e:luxe.MouseEvent) {
+      dis += Math.abs(e.yrel) + Math.abs(e.xrel);
+
+      if(dis >= 50) {
+        tk = haxe.Timer.stamp();
+        if(col.color.toColorHSL().s < 1) {
+          var old = col.color.toColorHSL();
+          col.color = new ColorHSL(old.h, old.s + .001, old.l, old.a);
         }
 
-    } //onkeyup
-
-    override function update(dt:Float) {
-
-    } //update
-
+        dis = 0;
+      }
+    } //mouse movement
 
 } //Main
